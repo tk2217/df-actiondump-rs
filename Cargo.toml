@@ -3,7 +3,7 @@ name = "diamondfire-actiondump"
 authors = ["tk2217"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-repository = ""
+repository = "https://github.com/tk2217/df-actiondump-rs/"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,4 +11,4 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+string_enum = "0.3"
