@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use string_enum::StringEnum;
 
 /// An RGB color.
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
@@ -7,51 +6,6 @@ pub struct IconColor {
     red: u8,
     green: u8,
     blue: u8,
-}
-
-/// A value type.
-///
-/// Mappings from DiamondFire types are in rustdoc on each variant.
-#[derive(Clone, Eq, Hash, PartialEq, StringEnum)]
-pub enum DFType {
-    /// `ANY_TYPE`
-    Any,
-    /// `BLOCK`
-    Block,
-    /// `BLOCK_TAG`
-    BlockTag,
-    /// `DICT`
-    Dictionary,
-    /// `ENTITY_TYPE`
-    EntityType,
-    /// `ITEM`
-    Item,
-    /// `LIST`
-    List,
-    /// `LOCATION`
-    Location,
-    /// `NONE`
-    None,
-    /// `NUMBER`
-    Number,
-    /// `PARTICLE`
-    Particle,
-    /// `POTION`
-    Potion,
-    /// `PROJECTILE`
-    Projectile,
-    /// `SOUND`
-    Sound,
-    /// `SPAWN_EGG`
-    SpawnEgg,
-    /// `TEXT`
-    Text,
-    /// `VARIABLE`
-    Variable,
-    /// `VECTOR`
-    Vector,
-    /// `VEHICLE`
-    Vehicle,
 }
 
 /// An argument to a code action.
@@ -62,7 +16,7 @@ pub struct Argument {
     /// The input type of the argument.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub df_type: Option<DFType>,
+    pub df_type: Option<String>,
 
     /// Additional text to display with the argument.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -85,15 +39,15 @@ pub struct Argument {
     pub notes: Option<Vec<Vec<String>>>,
 }
 
-/// The visual representation of a [`CodeData`]
+/// The display information for a [`CodeData`].
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeIcon {
-    /// The name of this code item.
+    /// The display name of this code item.
     pub name: String,
     /// The item material.
     ///
-    /// *Note: This is a bukkit material name.*
+    /// This is a bukkit material name
     pub material: String,
     /// Whether this code item is considered advanced.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -115,7 +69,7 @@ pub struct CodeIcon {
 
     /// The return type of this game value.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub return_type: Option<DFType>,
+    pub return_type: Option<String>,
     /// The description for the returned value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_description: Option<Vec<String>>,
@@ -162,72 +116,101 @@ pub struct CodeIcon {
 impl CodeIcon {
     /// Returns whether this code item is considered legacy.
     ///
-    /// *Note: This is determined by testing if the material is `STONE`.*
+    /// This is determined by testing if the material is `STONE`
     pub fn is_legacy(&self) -> bool {
         self.material == "STONE"
     }
 
     /// Returns whether this code item is deprecated.
     ///
-    /// *Note: This is determined by whether the deprecated note is not empty.*
+    /// This is determined by whether the deprecated note is not empty
     pub fn is_deprecated(&self) -> bool {
         !self.deprecated_note.is_empty()
     }
 }
 
+/// A data element in the DiamondFire action dump.
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeData {
+    /// The human readable name of this code item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
+    /// The identifier of this code item.
     #[serde(alias = "id")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identifier: Option<String>,
+
+    /// The bukkit enum constant name for this code item.
+    ///
+    /// Only applicable for particles, potions, and sounds.
     #[serde(alias = "particle")]
     #[serde(alias = "potion")]
     #[serde(alias = "sound")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub identifier: Option<String>,
+    pub bukkit_name: Option<String>,
 
+    /// The [`CodeIcon`] used to display this code item.
     #[serde(alias = "icon")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub item: Option<CodeIcon>,
 
+    /// Alternate names that may be used to identify this code item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aliases: Option<Vec<String>>,
 
+    /// The name of this codeblock.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub codeblock_name: Option<String>,
+    // TODO: Documentation
     pub sub_action_blocks: Option<Vec<String>>,
 
+    /// The category of this code item.
+    ///
+    /// Only used for game values, particles, and sounds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
+    /// Whether this category has any sub-categories.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_sub_categories: Option<bool>,
 
+    /// The tag options for this code item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<CodeData>>,
+
+    /// The fields of this particle effect.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<Vec<String>>,
 
+    /// The default option for this tag.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_option: Option<String>,
+    /// The list of options in this tag.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<CodeData>>,
 
+    /// The slot this item goes in within an inventory.
     #[serde(alias = "guiSlot")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub slot: Option<u8>,
 
+    /// The purchasable items within this shop.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub purchasables: Option<Vec<CodeData>>,
 
+    /// The price of this shop item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<u16>,
+    /// The currency used to purchase this shop item.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currencyType: Option<String>,
+    pub currency_type: Option<String>,
 }
 
 impl CodeData {
+    /// Returns whether this code item is considered legacy.
+    ///
+    /// This forwards to the method on `item` if it is present, otherwise returning false.
     pub fn is_legacy(&self) -> bool {
         match &self.item {
             Some(item) => item.is_legacy(),
@@ -235,6 +218,9 @@ impl CodeData {
         }
     }
 
+    /// Returns whether this code item is deprecated.
+    ///
+    /// This forwards to the method on `item` if it is present, otherwise returning false.
     pub fn is_deprecated(&self) -> bool {
         match &self.item {
             Some(item) => item.is_deprecated(),
@@ -242,6 +228,10 @@ impl CodeData {
         }
     }
 
+    /// Returns whether this code action is dynamic.
+    ///
+    /// This occurs when a code block does not have any selectable actions but needs to take in options.
+    /// This is tested by determining if the name is `dynamic`.
     pub fn is_dynamic(&self) -> bool {
         match &self.name {
             Some(name) => name == "dynamic",
