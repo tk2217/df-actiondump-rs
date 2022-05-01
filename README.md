@@ -1,5 +1,7 @@
 # DiamondFire Action Dump for Rust
-Cool stuff soon.
+A wrapper around the code action dump from <https://mcdiamondfire.com>.
+
+This currently only provides schema types for use with [serde](https://serde.rs).
 
 #### License
 
