@@ -8,4 +8,6 @@
 //!
 //! This currently only provides schema types for use with [`serde`].
 
+#[cfg(feature = "registry")]
+pub mod registry;
 pub mod schema;

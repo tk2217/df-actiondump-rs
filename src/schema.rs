@@ -1,3 +1,5 @@
+//! Structs defining the action dump format for use with [`serde`].
+
 use serde::{Deserialize, Serialize};
 
 /// An RGB color.
@@ -214,7 +216,7 @@ impl CodeData {
     pub fn is_legacy(&self) -> bool {
         match &self.item {
             Some(item) => item.is_legacy(),
-            _ => false
+            _ => false,
         }
     }
 
@@ -224,7 +226,7 @@ impl CodeData {
     pub fn is_deprecated(&self) -> bool {
         match &self.item {
             Some(item) => item.is_deprecated(),
-            _ => false
+            _ => false,
         }
     }
 
@@ -235,7 +237,7 @@ impl CodeData {
     pub fn is_dynamic(&self) -> bool {
         match &self.name {
             Some(name) => name == "dynamic",
-            _ => false
+            _ => false,
         }
     }
 }

@@ -12,3 +12,7 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
+
+[features]
+default = ["registry"]
+registry = []
