@@ -6,7 +6,7 @@
 //!
 //! A wrapper around the code action dump from <https://mcdiamondfire.com>.
 //!
-//! This currently only provides schema types for use with [`serde`].
+//! This currently provides full database loading and access using [`serde`].
 
 #[cfg(feature = "registry")]
 pub mod registry;

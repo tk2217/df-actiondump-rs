@@ -1,37 +1,39 @@
+//! An interface for loading and accessing a full action dump.
+
 use crate::schema::CodeData;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub type DatabaseValues = HashMap<String, Vec<CodeData>>;
+type DatabaseValues = HashMap<String, CodeRegistry>;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+
+/// A full code database which can be used to load an action dump.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CodeDatabase {
-    pub values: HashMap<String, CodeRegistry>,
+    /// The code database values.
+    #[serde(flatten)]
+    pub values: DatabaseValues,
 }
 
 impl CodeDatabase {
+    /// Create a new code database from its values.
     pub fn new(values: DatabaseValues) -> Self {
-        let mut internal = HashMap::new();
-
-        for (k, v) in values.into_iter() {
-            internal.insert(k.to_owned(), CodeRegistry::new(k, v));
+        CodeDatabase {
+            values
         }
-
-        CodeDatabase { values: internal }
-    }
-
-    pub fn into_values(self) -> DatabaseValues {
-        self.values
-            .into_iter()
-            .map(|(name, registry)| (name, registry.items))
-            .collect()
     }
 }
 
-/// A registry to hold a set of [`CodeData`]
-#[derive(Clone, Debug, Eq, PartialEq)]
+impl Into<DatabaseValues> for CodeDatabase {
+    fn into(self) -> DatabaseValues {
+        self.values
+    }
+}
+
+/// A registry holding a [`Vec<CodeData>`] and indexes from names and values.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(from = "Vec<CodeData>", into = "Vec<CodeData>")]
 pub struct CodeRegistry {
-    /// The name of this [`CodeRegistry`].
-    pub name: String,
     /// A list of all the items in this registry.
     pub items: Vec<CodeData>,
     /// A mapping from name to index for all [`CodeData`] elements where it is present.
@@ -41,7 +43,10 @@ pub struct CodeRegistry {
 }
 
 impl CodeRegistry {
-    pub fn new(name: String, items: Vec<CodeData>) -> Self {
+    /// Create a [`CodeRegistry`] from a [`Vec<CodeData>`].
+    ///
+    /// This will iterate over the list of items at least 2 times.
+    pub fn new(items: Vec<CodeData>) -> Self {
         let by_name = items
             .iter()
             .enumerate()
@@ -54,18 +59,31 @@ impl CodeRegistry {
             .collect();
 
         CodeRegistry {
-            name,
             items,
             by_name,
             by_id,
         }
     }
 
-    pub fn get_by_name(&self, id: String) -> Option<&CodeData> {
-        self.items.get(self.by_id.get(&id)?.to_owned())
+    /// Fetch a [`CodeData`] element by its `name`.
+    pub fn get_by_name(&self, name: String) -> Option<&CodeData> {
+        self.items.get(self.by_name.get(&name)?.to_owned())
     }
 
+    /// Fetch a [`CodeData`] element by its `identifier`.
     pub fn get_by_id(&self, id: String) -> Option<&CodeData> {
         self.items.get(self.by_id.get(&id)?.to_owned())
+    }
+}
+
+impl From<Vec<CodeData>> for CodeRegistry {
+    fn from(internal: Vec<CodeData>) -> Self {
+        CodeRegistry::new(internal)
+    }
+}
+
+impl Into<Vec<CodeData>> for CodeRegistry {
+    fn into(self) -> Vec<CodeData> {
+        self.items
     }
 }
