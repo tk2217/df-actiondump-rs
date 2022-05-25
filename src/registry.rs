@@ -24,9 +24,9 @@ impl CodeDatabase {
     }
 }
 
-impl Into<DatabaseValues> for CodeDatabase {
-    fn into(self) -> DatabaseValues {
-        self.values
+impl From<CodeDatabase> for DatabaseValues {
+    fn from(database: CodeDatabase) -> Self {
+        database.values
     }
 }
 
@@ -82,8 +82,8 @@ impl From<Vec<CodeData>> for CodeRegistry {
     }
 }
 
-impl Into<Vec<CodeData>> for CodeRegistry {
-    fn into(self) -> Vec<CodeData> {
-        self.items
+impl From<CodeRegistry> for Vec<CodeData> {
+    fn from(registry: CodeRegistry) -> Self {
+        registry.items
     }
 }
